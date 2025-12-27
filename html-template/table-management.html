@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub - Table Management</title>
+<meta name="description" content="FoodHub table management dashboard for managing restaurant tables and reservations.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-border: var(--border);
+    --color-accent-lime: var(--accent-lime);
+    --color-accent-teal: var(--accent-teal);
+    --color-accent-peach: var(--accent-peach);
+    --color-success: var(--success);
+    --color-success-light: var(--success-light);
+    --color-success-dark: var(--success-dark);
+    --color-error: var(--error);
+    --color-error-light: var(--error-light);
+    --color-error-lighter: var(--error-lighter);
+    --color-error-dark: var(--error-dark);
+    --color-warning: var(--warning);
+    --color-warning-light: var(--warning-light);
+    --color-warning-dark: var(--warning-dark);
+    --color-info: var(--info);
+    --color-info-light: var(--info-light);
+    --color-info-dark: var(--info-dark);
+    --color-alert: var(--alert);
+    --color-alert-light: var(--alert-light);
+    --color-alert-dark: var(--alert-dark);
+    --color-gray-50: var(--gray-50);
+    --color-gray-100: var(--gray-100);
+    --color-gray-200: var(--gray-200);
+    --color-gray-500: var(--gray-500);
+    --color-gray-600: var(--gray-600);
+    --color-gray-700: var(--gray-700);
+    --font-sans: var(--font-sans);
+    --radius-card: 20px;
+    --radius-button: 16px;
+    --radius-icon: 22px;
+  }
+  :root {
+    --primary: #EF3F09;
+    --primary-hover: #d63608;
+    --foreground: #0C1C3C;
+    --muted: #F7F7F7;
+    --border: #DCDEDD;
+    --accent-lime: #C5E151;
+    --accent-teal: #82D9D7;
+    --accent-peach: #FAAC7B;
+    --success: #22C55E;
+    --success-light: #DCFCE7;
+    --success-dark: #166534;
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --error-lighter: #FEF2F2;
+    --error-dark: #991B1B;
+    --warning: #EAB308;
+    --warning-light: #FEF9C3;
+    --warning-dark: #854D0E;
+    --info: #3B82F6;
+    --info-light: #DBEAFE;
+    --info-dark: #1E40AF;
+    --alert: #F97316;
+    --alert-light: #FFEDD5;
+    --alert-dark: #9A3412;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+  }
+  select {
+    @apply appearance-none bg-no-repeat cursor-pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 10px center;
+    padding-right: 40px;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="font-sans bg-white min-h-screen overflow-x-hidden">
+
+<!-- Mobile Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
+
+<div class="flex min-h-screen">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="w-64 bg-muted fixed inset-y-0 left-0 flex flex-col z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300"><!-- Logo Section --><div class="px-6 py-4"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center"><i data-lucide="utensils" class="w-7 h-7 text-white"></i></div><div><h1 class="text-foreground text-lg font-bold">FoodHub</h1><p class="text-foreground text-xs font-normal">Manager Dashboard</p></div></div><button onclick="toggleSidebar()" aria-label="Close sidebar" class="lg:hidden p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-all duration-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div></div><!-- Navigation Menu --><nav class="flex-1 px-6 py-4 space-y-6 overflow-y-auto"><div><h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Main</h3><div class="space-y-1"><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="home" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Dashboard</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="trending-up" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Sales Overview</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="shopping-bag" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Orders</span></div></a></div></div><div><h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Management</h3><div class="space-y-1"><div><button data-accordion="food-menu" class="flex items-center justify-between w-full px-4 py-3 rounded-card hover:bg-gray-50 cursor-pointer transition-all duration-200 group"><div class="flex items-center gap-2.5"><i data-lucide="utensils" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Food Menu</span></div><i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 group-hover:text-primary transition-transform duration-200"></i></button><div id="food-menu" class="ml-4 mt-2 space-y-1 hidden"><a href="#" class="group cursor-pointer"><div class="px-4 py-2 rounded-card hover:bg-gray-50"><span class="text-foreground text-sm group-hover:text-primary">All Items</span></div></a><a href="#" class="group cursor-pointer"><div class="px-4 py-2 rounded-card hover:bg-gray-50"><span class="text-foreground text-sm group-hover:text-primary">Add New Item</span></div></a><a href="#" class="group cursor-pointer"><div class="px-4 py-2 rounded-card hover:bg-gray-50"><span class="text-foreground text-sm group-hover:text-primary">Categories</span></div></a></div></div><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="store" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Restaurants</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="chef-hat" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Chefs</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card bg-[#276874] text-white"><i data-lucide="layout-grid" class="w-5 h-5"></i><span>Table Management</span></div></a></div></div><div><h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Settings</h3><div class="space-y-1"><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="settings" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Settings</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="users" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Users</span></div></a></div></div></nav><!-- User Profile at Bottom --><div class="px-6 pb-6 mt-auto"><div class="flex items-center gap-3"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Admin User profile photo" class="w-12 h-12 rounded-full object-cover flex-shrink-0"><div class="min-w-0 flex-1"><p class="text-foreground text-base font-semibold truncate">Admin User</p><p class="text-foreground text-sm font-normal truncate">admin@company.com</p></div></div></div></aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 lg:ml-64 p-4 md:p-5 bg-white min-h-screen overflow-x-hidden">
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between mb-6 bg-muted rounded-card p-4">
+      <button onclick="toggleSidebar()" aria-label="Open menu" class="p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-all duration-200">
+        <i data-lucide="menu" class="w-6 h-6 text-foreground"></i>
+      </button>
+      <h1 class="text-foreground text-lg font-bold">FoodHub</h1>
+      <div class="w-10"></div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
+      <div>
+        <h1 class="text-foreground text-2xl md:text-3xl font-bold mb-1">Table Management</h1>
+        <p class="text-gray-500 text-sm md:text-base">Manage restaurant tables and reservations</p>
+      </div>
+      <div class="flex items-center gap-2 md:gap-3 ml-auto md:ml-0">
+        <button class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-button text-foreground font-medium hover:border-primary transition-all duration-200 cursor-pointer">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span>Refresh</span>
+        </button>
+        <button class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Add Table</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+      <!-- Left Column - Restaurant Info & Floor Selection -->
+      <div class="lg:col-span-4 space-y-4 md:space-y-6">
+        <!-- Restaurant Information -->
+        <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+          <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Restaurant Information</h3>
+          <div class="bg-white rounded-card p-5">
+            <div class="flex items-center gap-4 mb-4">
+              <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop" alt="Restaurant interior" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-lg font-bold mb-1">The Golden Fork</h4>
+                <p class="text-gray-500 text-sm">Fine Dining Restaurant</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center p-3 bg-gray-50 rounded-card">
+                <p class="text-foreground text-2xl font-bold">48</p>
+                <p class="text-gray-500 text-xs">Total Tables</p>
+              </div>
+              <div class="text-center p-3 bg-gray-50 rounded-card">
+                <p class="text-foreground text-2xl font-bold">32</p>
+                <p class="text-gray-500 text-xs">Available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floor Selection -->
+        <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+          <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Floors</h3>
+          <div class="bg-white rounded-card p-5">
+            <div class="space-y-2">
+              <button id="floor-ground" onclick="switchFloor('ground')" class="w-full flex items-center justify-between p-4 bg-primary text-white rounded-card font-medium transition-all duration-200 cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="building" class="w-5 h-5"></i>
+                  <span>Ground Floor</span>
+                </div>
+                <span class="text-sm">24 Tables</span>
+              </button>
+              <button id="floor-second" onclick="switchFloor('second')" class="w-full flex items-center justify-between p-4 bg-gray-100 text-foreground rounded-card font-medium hover:bg-gray-200 transition-all duration-200 cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="building-2" class="w-5 h-5"></i>
+                  <span>Second Floor</span>
+                </div>
+                <span class="text-sm">24 Tables</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Tables Grid -->
+      <div class="lg:col-span-8">
+        <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 px-3">
+            <h3 id="floor-title" class="text-foreground text-lg font-bold">Tables - Ground Floor</h3>
+            <div class="flex items-center gap-4 text-sm">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-success rounded-full"></div>
+                <span class="text-gray-600">Available</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-error rounded-full"></div>
+                <span class="text-gray-600">Occupied</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-card p-5">
+            <div id="tables-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <!-- Tables will be dynamically generated here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Table Booking Modal -->
+<div id="booking-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-md w-full">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-foreground text-xl font-bold">Book Table <span id="modal-table-number"></span></h3>
+      <button onclick="closeBookingModal()" class="p-2 hover:bg-gray-100 rounded-full cursor-pointer" aria-label="Close modal">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <form onsubmit="bookTable(event)">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-foreground text-sm font-medium mb-2">Guest Name <span class="text-error">*</span></label>
+          <input type="text" id="guest-name" class="w-full px-4 py-3 border border-border rounded-button focus:outline-none focus:border-primary transition-all duration-200" placeholder="Enter guest name" required>
+        </div>
+        <div>
+          <label class="block text-foreground text-sm font-medium mb-2">Number of Guests <span class="text-error">*</span></label>
+          <select id="guest-count" class="w-full px-4 py-3 border border-border rounded-button focus:outline-none focus:border-primary transition-all duration-200" required>
+            <option value="">Select number of guests</option>
+            <option value="1">1 Guest</option>
+            <option value="2">2 Guests</option>
+            <option value="3">3 Guests</option>
+            <option value="4">4 Guests</option>
+            <option value="5">5 Guests</option>
+            <option value="6">6 Guests</option>
+            <option value="7">7 Guests</option>
+            <option value="8">8 Guests</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-foreground text-sm font-medium mb-2">Special Requests</label>
+          <textarea id="special-requests" class="w-full px-4 py-3 border border-border rounded-button focus:outline-none focus:border-primary transition-all duration-200 resize-none" rows="3" placeholder="Any special requests or notes..."></textarea>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="button" onclick="closeBookingModal()" class="flex-1 px-4 py-3 border border-border rounded-button text-foreground font-medium hover:border-primary transition-all duration-200 cursor-pointer">
+          Cancel
+        </button>
+        <button type="submit" class="flex-1 px-4 py-3 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+          Book Table
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Page Not Found Modal -->
+<div id="page-not-found-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+    <div class="w-16 h-16 bg-warning-light rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="alert-triangle" class="w-8 h-8 text-warning-dark"></i>
+    </div>
+    <h3 class="text-foreground text-xl font-bold mb-2">Page Not Available</h3>
+    <p class="text-gray-500 text-sm mb-6">This page hasn't been created yet. Generate it using the chat!</p>
+    <button onclick="closePageNotFoundModal()" class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+      Got it
+    </button>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+    <div class="w-16 h-16 bg-success-light rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="check" class="w-8 h-8 text-success"></i>
+    </div>
+    <h3 class="text-foreground text-xl font-bold mb-2">Success!</h3>
+    <p id="success-message" class="text-gray-500 text-sm mb-6">Your action was completed successfully.</p>
+    <button onclick="closeSuccessModal()" class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+      Got it
+    </button>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="error-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+    <div class="w-16 h-16 bg-error-light rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="x" class="w-8 h-8 text-error"></i>
+    </div>
+    <h3 class="text-foreground text-xl font-bold mb-2">Error</h3>
+    <p id="error-message" class="text-gray-500 text-sm mb-6">Something went wrong.</p>
+    <button onclick="closeErrorModal()" class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+      Try Again
+    </button>
+  </div>
+</div>
+
+<script>
+// Table data for different floors
+const floorData = {
+  ground: {
+    name: 'Ground Floor',
+    tables: [
+      { id: 'G1', status: 'available', guests: null, guestName: null },
+      { id: 'G2', status: 'occupied', guests: 4, guestName: 'John Smith' },
+      { id: 'G3', status: 'available', guests: null, guestName: null },
+      { id: 'G4', status: 'occupied', guests: 2, guestName: 'Sarah Johnson' },
+      { id: 'G5', status: 'available', guests: null, guestName: null },
+      { id: 'G6', status: 'available', guests: null, guestName: null },
+      { id: 'G7', status: 'occupied', guests: 6, guestName: 'Mike Wilson' },
+      { id: 'G8', status: 'available', guests: null, guestName: null },
+      { id: 'G9', status: 'available', guests: null, guestName: null },
+      { id: 'G10', status: 'occupied', guests: 3, guestName: 'Emma Davis' },
+      { id: 'G11', status: 'available', guests: null, guestName: null },
+      { id: 'G12', status: 'available', guests: null, guestName: null },
+      { id: 'G13', status: 'available', guests: null, guestName: null },
+      { id: 'G14', status: 'occupied', guests: 5, guestName: 'Robert Brown' },
+      { id: 'G15', status: 'available', guests: null, guestName: null },
+      { id: 'G16', status: 'available', guests: null, guestName: null },
+      { id: 'G17', status: 'available', guests: null, guestName: null },
+      { id: 'G18', status: 'available', guests: null, guestName: null },
+      { id: 'G19', status: 'occupied', guests: 2, guestName: 'Lisa Anderson' },
+      { id: 'G20', status: 'available', guests: null, guestName: null },
+      { id: 'G21', status: 'available', guests: null, guestName: null },
+      { id: 'G22', status: 'available', guests: null, guestName: null },
+      { id: 'G23', status: 'available', guests: null, guestName: null },
+      { id: 'G24', status: 'available', guests: null, guestName: null }
+    ]
+  },
+  second: {
+    name: 'Second Floor',
+    tables: [
+      { id: 'S1', status: 'available', guests: null, guestName: null },
+      { id: 'S2', status: 'available', guests: null, guestName: null },
+      { id: 'S3', status: 'occupied', guests: 4, guestName: 'David Miller' },
+      { id: 'S4', status: 'available', guests: null, guestName: null },
+      { id: 'S5', status: 'occupied', guests: 2, guestName: 'Jennifer Taylor' },
+      { id: 'S6', status: 'available', guests: null, guestName: null },
+      { id: 'S7', status: 'available', guests: null, guestName: null },
+      { id: 'S8', status: 'occupied', guests: 8, guestName: 'Corporate Event' },
+      { id: 'S9', status: 'available', guests: null, guestName: null },
+      { id: 'S10', status: 'available', guests: null, guestName: null },
+      { id: 'S11', status: 'occupied', guests: 3, guestName: 'Mark Johnson' },
+      { id: 'S12', status: 'available', guests: null, guestName: null },
+      { id: 'S13', status: 'available', guests: null, guestName: null },
+      { id: 'S14', status: 'available', guests: null, guestName: null },
+      { id: 'S15', status: 'occupied', guests: 6, guestName: 'Family Dinner' },
+      { id: 'S16', status: 'available', guests: null, guestName: null },
+      { id: 'S17', status: 'available', guests: null, guestName: null },
+      { id: 'S18', status: 'available', guests: null, guestName: null },
+      { id: 'S19', status: 'available', guests: null, guestName: null },
+      { id: 'S20', status: 'occupied', guests: 2, guestName: 'Anna White' },
+      { id: 'S21', status: 'available', guests: null, guestName: null },
+      { id: 'S22', status: 'available', guests: null, guestName: null },
+      { id: 'S23', status: 'available', guests: null, guestName: null },
+      { id: 'S24', status: 'available', guests: null, guestName: null }
+    ]
+  }
+};
+
+let currentFloor = 'ground';
+let selectedTableId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  lucide.createIcons();
+  renderTables(currentFloor);
+
+  // Show modal when clicking any navigation link
+  document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('page-not-found-modal').classList.remove('hidden');
+    });
+  });
+
+  // Accordion toggle
+  document.querySelectorAll('[data-accordion]').forEach(button => {
+    button.addEventListener('click', function() {
+      const target = document.getElementById(this.dataset.accordion);
+      const chevron = this.querySelector('[data-lucide="chevron-down"]');
+      target.classList.toggle('hidden');
+      chevron.classList.toggle('rotate-180');
+    });
+  });
+});
+
+function switchFloor(floor) {
+  currentFloor = floor;
+  
+  // Update floor button styles
+  document.querySelectorAll('button[id^="floor-"]').forEach(btn => {
+    if (btn.id === `floor-${floor}`) {
+      btn.className = 'w-full flex items-center justify-between p-4 bg-primary text-white rounded-card font-medium transition-all duration-200 cursor-pointer';
+    } else {
+      btn.className = 'w-full flex items-center justify-between p-4 bg-gray-100 text-foreground rounded-card font-medium hover:bg-gray-200 transition-all duration-200 cursor-pointer';
+    }
+  });
+  
+  // Update floor title
+  document.getElementById('floor-title').textContent = `Tables - ${floorData[floor].name}`;
+  
+  // Render tables for selected floor
+  renderTables(floor);
+}
+
+function renderTables(floor) {
+  const container = document.getElementById('tables-container');
+  const tables = floorData[floor].tables;
+
+  container.innerHTML = tables.map(table => {
+    const statusColor = table.status === 'available' ? 'bg-success' : 'bg-error';
+    const statusText = table.status === 'available' ? 'Available' : 'Occupied';
+    const clickable = table.status === 'available' ? 'cursor-pointer hover:scale-105 table-available' : 'cursor-not-allowed opacity-75';
+
+    return `
+      <div class="relative p-4 border-2 border-gray-200 rounded-card text-center transition-all duration-200 ${clickable}" data-table-id="${table.id}" data-status="${table.status}">
+        <div class="w-3 h-3 ${statusColor} rounded-full absolute top-2 right-2"></div>
+        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+          <i data-lucide="utensils" class="w-6 h-6 text-gray-600"></i>
+        </div>
+        <h4 class="text-foreground text-sm font-bold mb-1">Table ${table.id}</h4>
+        <p class="text-gray-500 text-xs mb-1">${statusText}</p>
+        ${table.status === 'occupied' ? `
+          <p class="text-gray-600 text-xs font-medium">${table.guestName}</p>
+          <p class="text-gray-500 text-xs">${table.guests} guests</p>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Reinitialize Lucide icons
+  lucide.createIcons();
+
+  // Add click event listeners to available tables using event delegation
+  container.querySelectorAll('.table-available').forEach(tableEl => {
+    tableEl.addEventListener('click', function() {
+      const tableId = this.dataset.tableId;
+      openBookingModal(tableId);
+    });
+  });
+}
+
+function openBookingModal(tableId) {
+  selectedTableId = tableId;
+  document.getElementById('modal-table-number').textContent = tableId;
+  document.getElementById('booking-modal').classList.remove('hidden');
+  
+  // Clear form
+  document.getElementById('guest-name').value = '';
+  document.getElementById('guest-count').value = '';
+  document.getElementById('special-requests').value = '';
+}
+
+function closeBookingModal() {
+  document.getElementById('booking-modal').classList.add('hidden');
+  selectedTableId = null;
+}
+
+function bookTable(event) {
+  event.preventDefault();
+
+  const guestName = document.getElementById('guest-name').value;
+  const guestCount = parseInt(document.getElementById('guest-count').value);
+
+  if (!guestName || !guestCount) {
+    showError('Please fill in all required fields');
+    return;
+  }
+
+  // Update table data
+  const table = floorData[currentFloor].tables.find(t => t.id === selectedTableId);
+  if (table) {
+    table.status = 'occupied';
+    table.guestName = guestName;
+    table.guests = guestCount;
+  }
+
+  // Re-render tables to show updated status
+  renderTables(currentFloor);
+
+  // Close modal
+  closeBookingModal();
+
+  // Show success message
+  showSuccess(`Table ${selectedTableId} has been booked for ${guestName} (${guestCount} guests)`);
+}
+
+function closePageNotFoundModal() {
+  document.getElementById('page-not-found-modal').classList.add('hidden');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('-translate-x-full');
+  overlay.classList.toggle('hidden');
+  document.body.classList.toggle('overflow-hidden');
+}
+
+// Custom modal functions
+function showSuccess(message) {
+  document.getElementById('success-message').textContent = message;
+  document.getElementById('success-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeSuccessModal() {
+  document.getElementById('success-modal').classList.add('hidden');
+}
+
+function showError(message) {
+  document.getElementById('error-message').textContent = message;
+  document.getElementById('error-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeErrorModal() {
+  document.getElementById('error-modal').classList.add('hidden');
+}
+</script>
+</body>
+</html>

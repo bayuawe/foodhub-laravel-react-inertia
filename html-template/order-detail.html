@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub - Order Details</title>
+<meta name="description" content="FoodHub order details page for viewing complete order information and customer data.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-border: var(--border);
+    --color-accent-lime: var(--accent-lime);
+    --color-accent-teal: var(--accent-teal);
+    --color-accent-peach: var(--accent-peach);
+    --color-success: var(--success);
+    --color-success-light: var(--success-light);
+    --color-success-dark: var(--success-dark);
+    --color-error: var(--error);
+    --color-error-light: var(--error-light);
+    --color-error-lighter: var(--error-lighter);
+    --color-error-dark: var(--error-dark);
+    --color-warning: var(--warning);
+    --color-warning-light: var(--warning-light);
+    --color-warning-dark: var(--warning-dark);
+    --color-info: var(--info);
+    --color-info-light: var(--info-light);
+    --color-info-dark: var(--info-dark);
+    --color-alert: var(--alert);
+    --color-alert-light: var(--alert-light);
+    --color-alert-dark: var(--alert-dark);
+    --color-gray-50: var(--gray-50);
+    --color-gray-100: var(--gray-100);
+    --color-gray-200: var(--gray-200);
+    --color-gray-500: var(--gray-500);
+    --color-gray-600: var(--gray-600);
+    --color-gray-700: var(--gray-700);
+    --font-sans: var(--font-sans);
+    --radius-card: 20px;
+    --radius-button: 16px;
+    --radius-icon: 22px;
+  }
+  :root {
+    --primary: #EF3F09;
+    --primary-hover: #d63608;
+    --foreground: #0C1C3C;
+    --muted: #F7F7F7;
+    --border: #DCDEDD;
+    --accent-lime: #C5E151;
+    --accent-teal: #82D9D7;
+    --accent-peach: #FAAC7B;
+    --success: #22C55E;
+    --success-light: #DCFCE7;
+    --success-dark: #166534;
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --error-lighter: #FEF2F2;
+    --error-dark: #991B1B;
+    --warning: #EAB308;
+    --warning-light: #FEF9C3;
+    --warning-dark: #854D0E;
+    --info: #3B82F6;
+    --info-light: #DBEAFE;
+    --info-dark: #1E40AF;
+    --alert: #F97316;
+    --alert-light: #FFEDD5;
+    --alert-dark: #9A3412;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+  }
+  select {
+    @apply appearance-none bg-no-repeat cursor-pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 10px center;
+    padding-right: 40px;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="font-sans bg-white min-h-screen overflow-x-hidden">
+
+<!-- Mobile Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
+
+<div class="flex min-h-screen">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="w-64 bg-muted fixed inset-y-0 left-0 flex flex-col z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300"><!-- Logo Section --><div class="px-6 py-4"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center"><i data-lucide="utensils" class="w-7 h-7 text-white"></i></div><div><h1 class="text-foreground text-lg font-bold">FoodHub</h1><p class="text-foreground text-xs font-normal">Manager Dashboard</p></div></div><button onclick="toggleSidebar()" aria-label="Close sidebar" class="lg:hidden p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-all duration-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div></div><!-- Navigation Menu --><nav class="flex-1 px-6 py-4 space-y-6 overflow-y-auto"><div><h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Main</h3><div class="space-y-1"><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="home" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Dashboard</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="trending-up" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Sales Overview</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card bg-[#276874] text-white"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span>Orders</span></div></a></div></div><div><h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Management</h3><div class="space-y-1"><div><button data-accordion="food-menu" class="flex items-center justify-between w-full px-4 py-3 rounded-card hover:bg-gray-50 cursor-pointer transition-all duration-200 group"><div class="flex items-center gap-2.5"><i data-lucide="utensils" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Food Menu</span></div><i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 group-hover:text-primary transition-transform duration-200"></i></button><div id="food-menu" class="ml-4 mt-2 space-y-1 hidden"><a href="#" class="group cursor-pointer"><div class="px-4 py-2 rounded-card hover:bg-gray-50"><span class="text-foreground text-sm group-hover:text-primary">All Items</span></div></a><a href="#" class="group cursor-pointer"><div class="px-4 py-2 rounded-card hover:bg-gray-50"><span class="text-foreground text-sm group-hover:text-primary">Add New Item</span></div></a><a href="#" class="group cursor-pointer"><div class="px-4 py-2 rounded-card hover:bg-gray-50"><span class="text-foreground text-sm group-hover:text-primary">Categories</span></div></a></div></div><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="store" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Restaurants</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="chef-hat" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Chefs</span></div></a></div></div><div><h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Settings</h3><div class="space-y-1"><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="settings" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Settings</span></div></a><a href="#" class="group cursor-pointer"><div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100"><i data-lucide="users" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i><span class="text-foreground group-hover:text-primary">Users</span></div></a></div></div></nav><!-- User Profile at Bottom --><div class="px-6 pb-6 mt-auto"><div class="flex items-center gap-3"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Admin User profile photo" class="w-12 h-12 rounded-full object-cover flex-shrink-0"><div class="min-w-0 flex-1"><p class="text-foreground text-base font-semibold truncate">Admin User</p><p class="text-foreground text-sm font-normal truncate">admin@company.com</p></div></div></div></aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 lg:ml-64 p-4 md:p-5 bg-white min-h-screen overflow-x-hidden">
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between mb-6 bg-muted rounded-card p-4">
+      <button onclick="toggleSidebar()" aria-label="Open menu" class="p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-all duration-200">
+        <i data-lucide="menu" class="w-6 h-6 text-foreground"></i>
+      </button>
+      <h1 class="text-foreground text-lg font-bold">FoodHub</h1>
+      <div class="w-10"></div>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
+    <div class="flex items-center gap-2 text-sm mb-6">
+      <a href="#" class="cursor-pointer">
+        <span class="text-gray-500 hover:text-primary transition-all duration-200">Dashboard</span>
+      </a>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+      <a href="#" class="cursor-pointer">
+        <span class="text-gray-500 hover:text-primary transition-all duration-200">Orders</span>
+      </a>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+      <span class="text-foreground font-medium">Order Details</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="bg-white rounded-card p-6 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-20 h-20 bg-accent-peach rounded-icon flex items-center justify-center flex-shrink-0">
+            <i data-lucide="shopping-bag" class="w-10 h-10 text-foreground"></i>
+          </div>
+          <div>
+            <h1 class="text-foreground text-2xl md:text-3xl font-extrabold mb-2">Order #ORD-2024-001</h1>
+            <p class="text-foreground text-sm md:text-base">Complete order details and customer information</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 md:gap-3 ml-auto md:ml-0">
+          <a href="#" class="cursor-pointer">
+            <div class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-button text-foreground font-medium hover:border-primary transition-all duration-200">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Back</span>
+            </div>
+          </a>
+          <button class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Invoice</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Status & Info -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Order Status</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-success-light rounded-full flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="check-circle" class="w-8 h-8 text-success"></i>
+            </div>
+            <span class="bg-success-light text-success-dark text-sm font-medium px-4 py-2 rounded-full">Delivered</span>
+            <p class="text-gray-500 text-sm mt-3">Order delivered successfully</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Order Total</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="text-center">
+            <p class="text-foreground text-3xl font-extrabold mb-1">$45</p>
+            <p class="text-gray-500 text-sm mb-2">Including taxes & fees</p>
+            <div class="text-xs text-gray-400 space-y-1">
+              <div class="flex justify-between">
+                <span>Subtotal:</span>
+                <span>$38</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Delivery:</span>
+                <span>$5</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Tax:</span>
+                <span>$2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Order Time</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-500">Placed:</span>
+              <span class="text-foreground font-medium">Dec 15, 2:30 PM</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Prepared:</span>
+              <span class="text-foreground font-medium">Dec 15, 2:45 PM</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Delivered:</span>
+              <span class="text-foreground font-medium">Dec 15, 3:15 PM</span>
+            </div>
+            <div class="pt-2 border-t border-gray-100">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Duration:</span>
+                <span class="text-success font-medium">45 minutes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Order Items -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Order Items</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="space-y-4">
+            <div class="flex gap-4 pb-4 border-b border-gray-100">
+              <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=100&h=100&fit=crop" alt="Margherita Pizza" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Margherita Pizza</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Fresh mozzarella, tomato sauce, basil leaves</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">Qty: 2</span>
+                  <span class="text-foreground font-semibold text-sm">$24</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 pb-4 border-b border-gray-100">
+              <img src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=100&h=100&fit=crop" alt="Caesar Salad" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Caesar Salad</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Romaine lettuce, parmesan, croutons, caesar dressing</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">Qty: 1</span>
+                  <span class="text-foreground font-semibold text-sm">$12</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 pb-4 border-b border-gray-100">
+              <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=100&h=100&fit=crop" alt="Garlic Bread" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Garlic Bread</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Toasted bread with garlic butter and herbs</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">Qty: 1</span>
+                  <span class="text-foreground font-semibold text-sm">$6</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=100&h=100&fit=crop" alt="Coca Cola" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Coca Cola</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Chilled soft drink, 330ml can</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">Qty: 2</span>
+                  <span class="text-foreground font-semibold text-sm">$4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Profile -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Customer Information</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="Sarah Johnson profile photo" class="w-20 h-20 rounded-full object-cover flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-foreground text-lg font-bold truncate">Sarah Johnson</h4>
+              <p class="text-gray-500 text-sm mb-2">Premium Customer • Member since 2022</p>
+              <div class="flex items-center gap-1">
+                <div class="flex">
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                </div>
+                <span class="text-gray-500 text-sm ml-1">(4.9)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="mail" class="w-5 h-5 text-gray-500"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-500 text-xs">Email Address</p>
+                <p class="text-foreground text-sm font-medium truncate">sarah.johnson@email.com</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="phone" class="w-5 h-5 text-gray-500"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-500 text-xs">Phone Number</p>
+                <p class="text-foreground text-sm font-medium">+1 (555) 123-4567</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="map-pin" class="w-5 h-5 text-gray-500"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-500 text-xs">Delivery Address</p>
+                <p class="text-foreground text-sm font-medium">123 Oak Street, Apt 4B<br>San Francisco, CA 94102</p>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100">
+              <div class="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <p class="text-foreground text-xl font-bold">47</p>
+                  <p class="text-gray-500 text-xs">Total Orders</p>
+                </div>
+                <div>
+                  <p class="text-foreground text-xl font-bold">$1.2K</p>
+                  <p class="text-gray-500 text-xs">Total Spent</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Spending Trend Chart -->
+    <div class="bg-muted rounded-card pt-5 px-3 pb-3 mb-6">
+      <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Customer Spending Trend</h3>
+      <div class="bg-white rounded-card p-4 md:p-5">
+        <div class="w-full overflow-x-auto">
+          <div class="min-w-70 h-55 sm:h-62 md:h-70">
+            <canvas id="spendingTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Restaurant & Delivery Info -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Restaurant Info -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Restaurant Details</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex items-center gap-4 mb-4">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop" alt="Bella Vista Restaurant" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-foreground text-lg font-bold truncate">Bella Vista Restaurant</h4>
+              <p class="text-gray-500 text-sm">Italian Cuisine • Downtown</p>
+              <div class="flex items-center gap-1 mt-1">
+                <div class="flex">
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-gray-300"></i>
+                </div>
+                <span class="text-gray-500 text-sm ml-1">(4.2)</span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div class="flex items-center gap-2">
+              <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">456 Main Street, Downtown, CA 94103</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">+1 (555) 987-6543</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">Open until 11:00 PM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Info -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Delivery Information</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex items-center gap-4 mb-4">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop" alt="Mike Rodriguez profile photo" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-foreground text-lg font-bold truncate">Mike Rodriguez</h4>
+              <p class="text-gray-500 text-sm">Delivery Driver • ID: #DR-2024-089</p>
+              <div class="flex items-center gap-1 mt-1">
+                <div class="flex">
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                  <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                </div>
+                <span class="text-gray-500 text-sm ml-1">(4.8)</span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div class="flex items-center gap-2">
+              <i data-lucide="truck" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">Vehicle: Honda Civic - ABC 123</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">+1 (555) 456-7890</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="navigation" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">Distance: 2.3 miles</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">Delivery time: 30 minutes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Page Not Found Modal -->
+<div id="page-not-found-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+    <div class="w-16 h-16 bg-warning-light rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="alert-triangle" class="w-8 h-8 text-warning-dark"></i>
+    </div>
+    <h3 class="text-foreground text-xl font-bold mb-2">Page Not Available</h3>
+    <p class="text-gray-500 text-sm mb-6">This page hasn't been created yet. Generate it using the chat!</p>
+    <button onclick="closePageNotFoundModal()" class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+      Got it
+    </button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  lucide.createIcons();
+
+  // Show modal when clicking any link
+  document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('page-not-found-modal').classList.remove('hidden');
+    });
+  });
+
+  // Accordion toggle
+  document.querySelectorAll('[data-accordion]').forEach(button => {
+    button.addEventListener('click', function() {
+      const target = document.getElementById(this.dataset.accordion);
+      const chevron = this.querySelector('[data-lucide="chevron-down"]');
+      target.classList.toggle('hidden');
+      chevron.classList.toggle('rotate-180');
+    });
+  });
+
+  // Customer Spending Trend Chart
+  const spendingCtx = document.getElementById('spendingTrendChart').getContext('2d');
+  new Chart(spendingCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Monthly Spending',
+        data: [85, 120, 95, 140, 110, 165, 130, 180, 145, 200, 175, 220],
+        borderColor: '#EF3F09',
+        backgroundColor: 'rgba(239, 63, 9, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#EF3F09',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value;
+            },
+            color: '#6B7280',
+            font: {
+              size: 12
+            }
+          },
+          grid: {
+            color: '#E5E7EB'
+          }
+        },
+        x: {
+          ticks: {
+            color: '#6B7280',
+            font: {
+              size: 12
+            }
+          },
+          grid: {
+            display: false
+          }
+        }
+      },
+      elements: {
+        point: {
+          hoverBackgroundColor: '#EF3F09'
+        }
+      }
+    }
+  });
+});
+
+function closePageNotFoundModal() {
+  document.getElementById('page-not-found-modal').classList.add('hidden');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('-translate-x-full');
+  overlay.classList.toggle('hidden');
+  document.body.classList.toggle('overflow-hidden');
+}
+</script>
+</body>
+</html>

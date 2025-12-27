@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub - Add New Food Item</title>
+<meta name="description" content="FoodHub multi-step form for adding new food items with category selection, chef assignment, and photo uploads.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-border: var(--border);
+    --color-accent-lime: var(--accent-lime);
+    --color-accent-teal: var(--accent-teal);
+    --color-accent-peach: var(--accent-peach);
+    --color-success: var(--success);
+    --color-success-light: var(--success-light);
+    --color-success-dark: var(--success-dark);
+    --color-error: var(--error);
+    --color-error-light: var(--error-light);
+    --color-error-lighter: var(--error-lighter);
+    --color-error-dark: var(--error-dark);
+    --color-warning: var(--warning);
+    --color-warning-light: var(--warning-light);
+    --color-warning-dark: var(--warning-dark);
+    --color-info: var(--info);
+    --color-info-light: var(--info-light);
+    --color-info-dark: var(--info-dark);
+    --color-alert: var(--alert);
+    --color-alert-light: var(--alert-light);
+    --color-alert-dark: var(--alert-dark);
+    --color-gray-50: var(--gray-50);
+    --color-gray-100: var(--gray-100);
+    --color-gray-200: var(--gray-200);
+    --color-gray-500: var(--gray-500);
+    --color-gray-600: var(--gray-600);
+    --color-gray-700: var(--gray-700);
+    --font-sans: var(--font-sans);
+    --radius-card: 20px;
+    --radius-button: 16px;
+    --radius-icon: 22px;
+  }
+  :root {
+    --primary: #EF3F09;
+    --primary-hover: #d63608;
+    --foreground: #0C1C3C;
+    --muted: #F7F7F7;
+    --border: #DCDEDD;
+    --accent-lime: #C5E151;
+    --accent-teal: #82D9D7;
+    --accent-peach: #FAAC7B;
+    --success: #22C55E;
+    --success-light: #DCFCE7;
+    --success-dark: #166534;
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --error-lighter: #FEF2F2;
+    --error-dark: #991B1B;
+    --warning: #EAB308;
+    --warning-light: #FEF9C3;
+    --warning-dark: #854D0E;
+    --info: #3B82F6;
+    --info-light: #DBEAFE;
+    --info-dark: #1E40AF;
+    --alert: #F97316;
+    --alert-light: #FFEDD5;
+    --alert-dark: #9A3412;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+  }
+  select {
+    @apply appearance-none bg-no-repeat cursor-pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 10px center;
+    padding-right: 40px;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="font-sans bg-white min-h-screen">
+
+<!-- Mobile Header (lg:hidden) -->
+<div class="lg:hidden sticky top-0 z-50 bg-white border-b border-border">
+  <!-- Top bar with logo and menu button -->
+  <div class="flex items-center justify-between px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 relative flex items-center justify-center">
+        <div class="w-10 h-10 absolute bg-primary rounded-full"></div>
+        <i data-lucide="utensils" class="w-5 h-5 text-white relative z-10"></i>
+      </div>
+      <div>
+        <h1 class="text-foreground text-base font-bold">FoodHub</h1>
+        <p class="text-gray-500 text-xs">Add Food Item</p>
+      </div>
+    </div>
+    <button onclick="toggleMobileMenu()" class="w-10 h-10 flex items-center justify-center rounded-button border border-border hover:border-primary transition-all cursor-pointer" aria-label="Open menu">
+      <i data-lucide="menu" class="w-5 h-5 text-foreground"></i>
+    </button>
+  </div>
+
+  <!-- Mobile Step Indicator (horizontal scrollable pills) -->
+  <div class="px-4 pb-3">
+    <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+      <!-- Step 1 - Active -->
+      <div class="mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-primary/10 border border-primary">
+        <div class="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+          <span class="text-white text-xs font-bold">1</span>
+        </div>
+        <span class="text-primary text-xs font-semibold whitespace-nowrap">Basic Info</span>
+      </div>
+      <!-- Step 2 - Pending -->
+      <div class="mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-gray-100 border border-transparent">
+        <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+          <span class="text-gray-500 text-xs font-bold">2</span>
+        </div>
+        <span class="text-gray-400 text-xs font-semibold whitespace-nowrap">Chef Assignment</span>
+      </div>
+      <!-- Step 3 - Pending -->
+      <div class="mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-gray-100 border border-transparent">
+        <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+          <span class="text-gray-500 text-xs font-bold">3</span>
+        </div>
+        <span class="text-gray-400 text-xs font-semibold whitespace-nowrap">Photos</span>
+      </div>
+      <!-- Step 4 - Pending -->
+      <div class="mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-gray-100 border border-transparent">
+        <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+          <span class="text-gray-500 text-xs font-bold">4</span>
+        </div>
+        <span class="text-gray-400 text-xs font-semibold whitespace-nowrap">Pricing</span>
+      </div>
+      <!-- Step 5 - Pending -->
+      <div class="mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-gray-100 border border-transparent">
+        <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+          <span class="text-gray-500 text-xs font-bold">5</span>
+        </div>
+        <span class="text-gray-400 text-xs font-semibold whitespace-nowrap">Review</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Menu Drawer -->
+<div id="mobileMenuDrawer" class="fixed inset-0 z-[60] hidden">
+  <div class="absolute inset-0 bg-black/50" onclick="toggleMobileMenu()"></div>
+  <div class="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-muted flex flex-col p-6 overflow-y-auto">
+    <!-- Logo Section -->
+    <div class="mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 relative flex items-center justify-center">
+          <div class="w-14 h-14 absolute bg-primary rounded-full"></div>
+          <i data-lucide="utensils" class="w-7 h-7 text-white relative z-10"></i>
+        </div>
+        <div>
+          <h1 class="text-foreground text-lg font-bold">FoodHub</h1>
+          <p class="text-foreground text-xs font-normal">Restaurant Manager</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 space-y-6">
+      <div>
+        <a href="#" class="cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card bg-primary text-white">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span>Dashboard</span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="#" class="group cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-50">
+            <i data-lucide="utensils" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+            <span class="text-foreground group-hover:text-primary">Menu Items</span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="#" class="group cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-50">
+            <i data-lucide="shopping-cart" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+            <span class="text-foreground group-hover:text-primary">Orders</span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="#" class="group cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-50">
+            <i data-lucide="chef-hat" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+            <span class="text-foreground group-hover:text-primary">Chefs</span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="#" class="group cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-50">
+            <i data-lucide="users" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+            <span class="text-foreground group-hover:text-primary">Customers</span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="#" class="group cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-50">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+            <span class="text-foreground group-hover:text-primary">Analytics</span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="#" class="group cursor-pointer">
+          <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-50">
+            <i data-lucide="settings" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+            <span class="text-foreground group-hover:text-primary">Settings</span>
+          </div>
+        </a>
+      </div>
+    </nav>
+
+    <!-- User Profile -->
+    <div class="mt-auto">
+      <div class="flex items-center gap-3">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Chef Manager profile photo" class="w-12 h-12 rounded-full object-cover">
+        <div class="text-left">
+          <p class="text-foreground text-base font-semibold">Chef Manager</p>
+          <p class="text-foreground text-base font-normal leading-7">chef@foodhub.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flex min-h-screen">
+
+  <!-- Left Panel: Desktop Step Progress (hidden lg:flex) -->
+  <div class="hidden lg:flex w-80 bg-muted flex-col p-6 min-h-screen">
+
+    <!-- Logo Section -->
+    <div class="mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 relative flex items-center justify-center">
+          <div class="w-14 h-14 absolute bg-primary rounded-full"></div>
+          <i data-lucide="utensils" class="w-7 h-7 text-white relative z-10"></i>
+        </div>
+        <div>
+          <h1 class="text-foreground text-lg font-bold">FoodHub</h1>
+          <p class="text-foreground text-xs font-normal">Add Food Item</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step Progress (Centered) -->
+    <div class="flex-1 flex flex-col justify-center">
+      <div class="space-y-4">
+
+        <!-- Step 1 - Active -->
+        <div class="flex items-start gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center step-circle">
+              <span class="text-white text-xs font-bold">1</span>
+            </div>
+            <div class="w-px h-8 bg-primary mt-1 step-line"></div>
+          </div>
+          <div class="pt-1">
+            <h4 class="text-primary font-semibold text-sm step-title">Basic Information</h4>
+            <p class="text-gray-600 text-xs step-desc">Name, category & description</p>
+          </div>
+        </div>
+
+        <!-- Step 2 - Pending -->
+        <div class="flex items-start gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center step-circle">
+              <span class="text-gray-500 text-xs font-bold">2</span>
+            </div>
+            <div class="w-px h-8 bg-gray-200 mt-1 step-line"></div>
+          </div>
+          <div class="pt-1">
+            <h4 class="text-gray-400 font-semibold text-sm step-title">Chef Assignment</h4>
+            <p class="text-gray-400 text-xs step-desc">Assign chef & cooking time</p>
+          </div>
+        </div>
+
+        <!-- Step 3 - Pending -->
+        <div class="flex items-start gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center step-circle">
+              <span class="text-gray-500 text-xs font-bold">3</span>
+            </div>
+            <div class="w-px h-8 bg-gray-200 mt-1 step-line"></div>
+          </div>
+          <div class="pt-1">
+            <h4 class="text-gray-400 font-semibold text-sm step-title">Upload Photos</h4>
+            <p class="text-gray-400 text-xs step-desc">Gallery images for display</p>
+          </div>
+        </div>
+
+        <!-- Step 4 - Pending -->
+        <div class="flex items-start gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center step-circle">
+              <span class="text-gray-500 text-xs font-bold">4</span>
+            </div>
+            <div class="w-px h-8 bg-gray-200 mt-1 step-line"></div>
+          </div>
+          <div class="pt-1">
+            <h4 class="text-gray-400 font-semibold text-sm step-title">Pricing & Availability</h4>
+            <p class="text-gray-400 text-xs step-desc">Set price & availability</p>
+          </div>
+        </div>
+
+        <!-- Step 5 - Pending -->
+        <div class="flex items-start gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center step-circle">
+              <span class="text-gray-500 text-xs font-bold">5</span>
+            </div>
+          </div>
+          <div class="pt-1">
+            <h4 class="text-gray-400 font-semibold text-sm step-title">Review & Confirm</h4>
+            <p class="text-gray-400 text-xs step-desc">Final review before adding</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- User Profile (Bottom) -->
+    <div class="mt-auto">
+      <div class="flex items-center gap-3">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Chef Manager profile photo" class="w-12 h-12 rounded-full object-cover">
+        <div class="text-left">
+          <p class="text-foreground text-base font-semibold">Chef Manager</p>
+          <p class="text-foreground text-base font-normal leading-7">chef@foodhub.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Form Content -->
+  <div class="flex-1 bg-white">
+    <div class="p-4 md:p-6">
+
+      <!-- Page Header with Accent-Lime Icon Box -->
+      <div class="bg-white rounded-card mb-6 pt-6 pb-6 px-6">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 relative flex items-center justify-center rounded-card overflow-hidden">
+            <div class="w-full h-full absolute bg-accent-lime rounded-card"></div>
+            <i data-lucide="plus-circle" class="w-8 h-8 text-foreground relative z-10"></i>
+          </div>
+          <div>
+            <h1 class="text-foreground text-xl md:text-3xl font-extrabold mb-2">Add New Food Item</h1>
+            <p class="text-foreground text-sm md:text-base font-normal">Create a new menu item for your restaurant</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1: Basic Information -->
+      <div id="step1" class="step-content bg-muted rounded-card pt-4 md:pt-5 px-2 pb-2 mb-6 md:mb-12">
+        <div class="mb-3 md:mb-4">
+          <h3 class="text-foreground text-base md:text-lg font-bold ml-3 md:ml-5">Basic Information</h3>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row gap-4">
+          <!-- Left: Form Fields -->
+          <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6 flex-1 order-2 lg:order-1">
+            <form class="space-y-4 md:space-y-6" id="step1Form">
+              
+              <!-- Food Name -->
+              <div class="space-y-2">
+                <label for="inputFoodName" class="block text-foreground text-sm font-semibold">
+                  Food Name <span class="text-primary">*</span>
+                </label>
+                <input type="text" id="inputFoodName" name="foodName" required
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                  placeholder="Enter food item name">
+              </div>
+
+              <!-- Category Selection -->
+              <div class="space-y-2">
+                <label for="selectCategory" class="block text-foreground text-sm font-semibold">
+                  Category <span class="text-primary">*</span>
+                </label>
+                <select id="selectCategory" name="category" required
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold cursor-pointer">
+                  <option value="">Select a category...</option>
+                  <option value="appetizer">Appetizer</option>
+                  <option value="main-course">Main Course</option>
+                  <option value="dessert">Dessert</option>
+                  <option value="beverage">Beverage</option>
+                  <option value="salad">Salad</option>
+                  <option value="soup">Soup</option>
+                </select>
+              </div>
+
+              <!-- Description -->
+              <div class="space-y-2">
+                <label for="inputDescription" class="block text-foreground text-sm font-semibold">
+                  Description <span class="text-primary">*</span>
+                </label>
+                <textarea id="inputDescription" name="description" rows="4" required
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold resize-none"
+                  placeholder="Describe the food item, ingredients, and special features..."></textarea>
+                <p class="text-gray-500 text-xs text-right"><span id="charCount">0</span>/300 characters</p>
+              </div>
+
+              <!-- Dietary Options -->
+              <div class="space-y-3">
+                <p class="text-foreground text-sm font-semibold">Dietary Options</p>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="dietary" value="vegetarian" class="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Vegetarian</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="dietary" value="vegan" class="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Vegan</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="dietary" value="gluten-free" class="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Gluten Free</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="dietary" value="spicy" class="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Spicy</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
+                <button type="button" onclick="cancelForm()"
+                  class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button text-foreground font-semibold hover:border-primary transition-all duration-300 cursor-pointer order-2 sm:order-1">
+                  Cancel
+                </button>
+                <button type="button" onclick="nextStep()"
+                  class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-primary text-white rounded-button font-semibold hover:bg-primary-hover transition-all duration-300 cursor-pointer order-1 sm:order-2">
+                  Next Step
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Thumbnail Photo Upload -->
+          <div class="w-full lg:w-80 bg-white rounded-card px-4 md:px-6 py-4 md:py-6 h-fit order-1 lg:order-2">
+            <div>
+              <label class="block text-foreground text-sm font-semibold mb-2">Thumbnail Photo</label>
+              <div class="relative">
+                <div id="thumbnailPlaceholder"
+                  class="border-2 border-dashed border-border rounded-button p-4 md:p-6 hover:border-primary transition-all duration-300 cursor-pointer"
+                  onclick="document.getElementById('thumbnailUpload').click()">
+                  <div class="text-center">
+                    <i data-lucide="image" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-sm text-gray-600 mb-2">Click to upload thumbnail</p>
+                    <p class="text-xs text-gray-400">PNG, JPG up to 5MB</p>
+                  </div>
+                </div>
+                <div id="thumbnailPreviewContainer" class="hidden">
+                  <img id="thumbnailPreview" class="w-full rounded-button object-cover" alt="Thumbnail preview">
+                  <button type="button" onclick="removeThumbnail()" class="mt-3 w-full px-3 py-2 text-sm text-error hover:text-error-dark cursor-pointer">
+                    <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i>Remove
+                  </button>
+                </div>
+                <input type="file" id="thumbnailUpload" accept="image/*" class="hidden" onchange="previewThumbnail(event)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Chef Assignment (Hidden initially) -->
+      <div id="step2" class="step-content bg-muted rounded-card pt-4 md:pt-5 px-2 pb-2 mb-6 md:mb-12 hidden">
+        <div class="mb-3 md:mb-4">
+          <h3 class="text-foreground text-base md:text-lg font-bold ml-3 md:ml-5">Chef Assignment</h3>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row gap-4">
+          <!-- Left: Form Fields -->
+          <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6 flex-1">
+            <form class="space-y-4 md:space-y-6" id="step2Form">
+              
+              <!-- Assign Chef -->
+              <div class="space-y-2">
+                <label for="selectChef" class="block text-foreground text-sm font-semibold">
+                  Assign Chef <span class="text-primary">*</span>
+                </label>
+                <select id="selectChef" name="chef" required
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold cursor-pointer">
+                  <option value="">Select a chef...</option>
+                  <option value="chef1">Chef Marco Rodriguez</option>
+                  <option value="chef2">Chef Sarah Chen</option>
+                  <option value="chef3">Chef Antonio Rossi</option>
+                  <option value="chef4">Chef Maria Santos</option>
+                </select>
+              </div>
+
+              <!-- Cooking Time -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label for="inputPrepTime" class="block text-foreground text-sm font-semibold">
+                    Prep Time (minutes) <span class="text-primary">*</span>
+                  </label>
+                  <input type="number" id="inputPrepTime" name="prepTime" min="1" required
+                    class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                    placeholder="15">
+                </div>
+                <div class="space-y-2">
+                  <label for="inputCookTime" class="block text-foreground text-sm font-semibold">
+                    Cook Time (minutes) <span class="text-primary">*</span>
+                  </label>
+                  <input type="number" id="inputCookTime" name="cookTime" min="1" required
+                    class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                    placeholder="20">
+                </div>
+              </div>
+
+              <!-- Difficulty Level -->
+              <div class="space-y-3">
+                <p class="text-foreground text-sm font-semibold">Difficulty Level</p>
+                <div class="flex gap-4">
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="difficulty" value="easy" class="w-4 h-4 border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Easy</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="difficulty" value="medium" class="w-4 h-4 border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Medium</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="difficulty" value="hard" class="w-4 h-4 border-border text-primary focus:ring-primary cursor-pointer">
+                    <span class="text-foreground text-sm group-hover:text-primary transition-colors">Hard</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Special Instructions -->
+              <div class="space-y-2">
+                <label for="inputInstructions" class="block text-foreground text-sm font-semibold">
+                  Special Instructions
+                </label>
+                <textarea id="inputInstructions" name="instructions" rows="3"
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold resize-none"
+                  placeholder="Any special cooking instructions or notes..."></textarea>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
+                <button type="button" onclick="previousStep()"
+                  class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button text-foreground font-semibold hover:border-primary transition-all duration-300 cursor-pointer">
+                  Previous
+                </button>
+                <button type="button" onclick="nextStep()"
+                  class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-primary text-white rounded-button font-semibold hover:bg-primary-hover transition-all duration-300 cursor-pointer">
+                  Next Step
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Chef Info Cards -->
+          <div class="w-full lg:flex-1 flex flex-col gap-4">
+            <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-accent-teal rounded-full flex items-center justify-center">
+                  <i data-lucide="chef-hat" class="w-5 h-5 md:w-6 md:h-6 text-foreground"></i>
+                </div>
+                <div>
+                  <h4 class="text-foreground text-sm font-bold">Chef Expertise</h4>
+                  <p class="text-gray-500 text-xs">Match dish complexity</p>
+                </div>
+              </div>
+              <p class="text-gray-600 text-xs">Assign the most suitable chef based on their specialization and the dish complexity.</p>
+            </div>
+            
+            <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-accent-peach rounded-full flex items-center justify-center">
+                  <i data-lucide="clock" class="w-5 h-5 md:w-6 md:h-6 text-foreground"></i>
+                </div>
+                <div>
+                  <h4 class="text-foreground text-sm font-bold">Timing Estimate</h4>
+                  <p class="text-gray-500 text-xs">Accurate preparation time</p>
+                </div>
+              </div>
+              <p class="text-gray-600 text-xs">Set realistic prep and cooking times to help customers plan their orders effectively.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Upload Gallery Photos (Hidden initially) -->
+      <div id="step3" class="step-content bg-muted rounded-card pt-4 md:pt-5 px-2 pb-2 mb-6 md:mb-12 hidden">
+        <div class="mb-3 md:mb-4">
+          <h3 class="text-foreground text-base md:text-lg font-bold ml-3 md:ml-5">Upload Gallery Photos</h3>
+        </div>
+        
+        <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6">
+          <form class="space-y-4 md:space-y-6" id="step3Form">
+            
+            <p class="text-gray-600 text-sm mb-4">Upload multiple photos to showcase your food item. The first photo will be used as the main display image.</p>
+            
+            <!-- Photo Upload Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+              <!-- Photo 1 -->
+              <div class="relative">
+                <div id="photo1Placeholder" class="border-2 border-dashed border-border rounded-card p-6 md:p-8 text-center hover:border-primary transition-all duration-300 cursor-pointer"
+                  onclick="document.getElementById('photo1Upload').click()">
+                  <i data-lucide="image" class="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3"></i>
+                  <p class="text-sm md:text-base text-gray-600 font-medium mb-1">Photo 1 (Main)</p>
+                  <p class="text-xs text-gray-400">Click to upload</p>
+                </div>
+                <div id="photo1PreviewContainer" class="hidden">
+                  <img id="photo1Preview" class="w-full aspect-square object-cover rounded-card" alt="Photo 1 preview">
+                  <button type="button" onclick="removePhoto(1)" class="absolute top-2 right-2 w-8 h-8 bg-error text-white rounded-full flex items-center justify-center hover:bg-error-dark cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <input type="file" id="photo1Upload" accept="image/*" class="hidden" onchange="previewPhoto(event, 1)">
+              </div>
+
+              <!-- Photo 2 -->
+              <div class="relative">
+                <div id="photo2Placeholder" class="border-2 border-dashed border-border rounded-card p-6 md:p-8 text-center hover:border-primary transition-all duration-300 cursor-pointer"
+                  onclick="document.getElementById('photo2Upload').click()">
+                  <i data-lucide="image" class="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3"></i>
+                  <p class="text-sm md:text-base text-gray-600 font-medium mb-1">Photo 2</p>
+                  <p class="text-xs text-gray-400">Click to upload</p>
+                </div>
+                <div id="photo2PreviewContainer" class="hidden">
+                  <img id="photo2Preview" class="w-full aspect-square object-cover rounded-card" alt="Photo 2 preview">
+                  <button type="button" onclick="removePhoto(2)" class="absolute top-2 right-2 w-8 h-8 bg-error text-white rounded-full flex items-center justify-center hover:bg-error-dark cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <input type="file" id="photo2Upload" accept="image/*" class="hidden" onchange="previewPhoto(event, 2)">
+              </div>
+
+              <!-- Photo 3 -->
+              <div class="relative">
+                <div id="photo3Placeholder" class="border-2 border-dashed border-border rounded-card p-6 md:p-8 text-center hover:border-primary transition-all duration-300 cursor-pointer"
+                  onclick="document.getElementById('photo3Upload').click()">
+                  <i data-lucide="image" class="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3"></i>
+                  <p class="text-sm md:text-base text-gray-600 font-medium mb-1">Photo 3</p>
+                  <p class="text-xs text-gray-400">Click to upload</p>
+                </div>
+                <div id="photo3PreviewContainer" class="hidden">
+                  <img id="photo3Preview" class="w-full aspect-square object-cover rounded-card" alt="Photo 3 preview">
+                  <button type="button" onclick="removePhoto(3)" class="absolute top-2 right-2 w-8 h-8 bg-error text-white rounded-full flex items-center justify-center hover:bg-error-dark cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <input type="file" id="photo3Upload" accept="image/*" class="hidden" onchange="previewPhoto(event, 3)">
+              </div>
+
+              <!-- Photo 4 -->
+              <div class="relative">
+                <div id="photo4Placeholder" class="border-2 border-dashed border-border rounded-card p-6 md:p-8 text-center hover:border-primary transition-all duration-300 cursor-pointer"
+                  onclick="document.getElementById('photo4Upload').click()">
+                  <i data-lucide="image" class="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3"></i>
+                  <p class="text-sm md:text-base text-gray-600 font-medium mb-1">Photo 4</p>
+                  <p class="text-xs text-gray-400">Click to upload</p>
+                </div>
+                <div id="photo4PreviewContainer" class="hidden">
+                  <img id="photo4Preview" class="w-full aspect-square object-cover rounded-card" alt="Photo 4 preview">
+                  <button type="button" onclick="removePhoto(4)" class="absolute top-2 right-2 w-8 h-8 bg-error text-white rounded-full flex items-center justify-center hover:bg-error-dark cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <input type="file" id="photo4Upload" accept="image/*" class="hidden" onchange="previewPhoto(event, 4)">
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
+              <button type="button" onclick="previousStep()"
+                class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button text-foreground font-semibold hover:border-primary transition-all duration-300 cursor-pointer">
+                Previous
+              </button>
+              <button type="button" onclick="nextStep()"
+                class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-primary text-white rounded-button font-semibold hover:bg-primary-hover transition-all duration-300 cursor-pointer">
+                Next Step
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 4: Pricing & Availability (Hidden initially) -->
+      <div id="step4" class="step-content bg-muted rounded-card pt-4 md:pt-5 px-2 pb-2 mb-6 md:mb-12 hidden">
+        <div class="mb-3 md:mb-4">
+          <h3 class="text-foreground text-base md:text-lg font-bold ml-3 md:ml-5">Pricing & Availability</h3>
+        </div>
+        
+        <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6">
+          <form class="space-y-4 md:space-y-6" id="step4Form">
+            
+            <!-- Pricing Section -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <div class="space-y-2">
+                <label for="inputPrice" class="block text-foreground text-sm font-semibold">
+                  Price ($) <span class="text-primary">*</span>
+                </label>
+                <input type="number" id="inputPrice" name="price" min="0" step="0.01" required
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                  placeholder="15.99">
+              </div>
+              <div class="space-y-2">
+                <label for="inputDiscount" class="block text-foreground text-sm font-semibold">
+                  Discount (%)
+                </label>
+                <input type="number" id="inputDiscount" name="discount" min="0" max="100"
+                  class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                  placeholder="0">
+              </div>
+            </div>
+
+            <!-- Availability -->
+            <div class="space-y-3">
+              <p class="text-foreground text-sm font-semibold">Availability</p>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <div class="relative">
+                  <input type="checkbox" id="toggleAvailable" name="available" checked class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                  <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-5 transition-transform"></div>
+                </div>
+                <span class="text-foreground text-sm">Available for orders</span>
+              </label>
+            </div>
+
+            <!-- Portion Size -->
+            <div class="space-y-2">
+              <label for="selectPortion" class="block text-foreground text-sm font-semibold">
+                Portion Size <span class="text-primary">*</span>
+              </label>
+              <select id="selectPortion" name="portion" required
+                class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold cursor-pointer">
+                <option value="">Select portion size...</option>
+                <option value="small">Small</option>
+                <option value="regular">Regular</option>
+                <option value="large">Large</option>
+                <option value="family">Family Size</option>
+              </select>
+            </div>
+
+            <!-- Daily Limit -->
+            <div class="space-y-2">
+              <label for="inputDailyLimit" class="block text-foreground text-sm font-semibold">
+                Daily Limit (Optional)
+              </label>
+              <input type="number" id="inputDailyLimit" name="dailyLimit" min="1"
+                class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                placeholder="Leave empty for unlimited">
+              <p class="text-gray-500 text-xs">Set a daily limit if this is a special or limited item</p>
+            </div>
+
+            <!-- Tags -->
+            <div class="space-y-2">
+              <label for="inputTags" class="block text-foreground text-sm font-semibold">
+                Tags
+              </label>
+              <input type="text" id="inputTags" name="tags"
+                class="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button focus:bg-white hover:border-primary focus:border-primary transition-all duration-300 font-semibold"
+                placeholder="popular, spicy, chef-special (comma separated)">
+              <p class="text-gray-500 text-xs">Add tags to help customers find this item</p>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
+              <button type="button" onclick="previousStep()"
+                class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button text-foreground font-semibold hover:border-primary transition-all duration-300 cursor-pointer">
+                Previous
+              </button>
+              <button type="button" onclick="nextStep()"
+                class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-primary text-white rounded-button font-semibold hover:bg-primary-hover transition-all duration-300 cursor-pointer">
+                Review
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 5: Review & Confirm (Hidden initially) -->
+      <div id="step5" class="step-content bg-muted rounded-card pt-4 md:pt-5 px-2 pb-2 mb-6 md:mb-12 hidden">
+        <div class="mb-3 md:mb-4">
+          <h3 class="text-foreground text-base md:text-lg font-bold ml-3 md:ml-5">Review & Confirm</h3>
+        </div>
+        
+        <div class="bg-white rounded-card px-4 md:px-6 py-4 md:py-6">
+          <div class="space-y-6 md:space-y-8">
+            
+            <!-- Summary Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <!-- Basic Information -->
+              <div class="bg-muted rounded-card p-4">
+                <h4 class="text-foreground text-sm font-bold mb-3 flex items-center gap-2">
+                  <i data-lucide="info" class="w-4 h-4"></i>
+                  Basic Information
+                </h4>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Name:</span>
+                    <span class="text-foreground font-medium" id="reviewFoodName">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Category:</span>
+                    <span class="text-foreground font-medium" id="reviewCategory">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Description:</span>
+                    <span class="text-foreground font-medium text-right max-w-32 truncate" id="reviewDescription">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chef Assignment -->
+              <div class="bg-muted rounded-card p-4">
+                <h4 class="text-foreground text-sm font-bold mb-3 flex items-center gap-2">
+                  <i data-lucide="chef-hat" class="w-4 h-4"></i>
+                  Chef Assignment
+                </h4>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Chef:</span>
+                    <span class="text-foreground font-medium" id="reviewChef">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Prep Time:</span>
+                    <span class="text-foreground font-medium" id="reviewPrepTime">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Cook Time:</span>
+                    <span class="text-foreground font-medium" id="reviewCookTime">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pricing -->
+              <div class="bg-muted rounded-card p-4">
+                <h4 class="text-foreground text-sm font-bold mb-3 flex items-center gap-2">
+                  <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                  Pricing
+                </h4>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Price:</span>
+                    <span class="text-foreground font-medium" id="reviewPrice">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Portion:</span>
+                    <span class="text-foreground font-medium" id="reviewPortion">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Available:</span>
+                    <span class="text-foreground font-medium" id="reviewAvailable">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Info -->
+              <div class="bg-muted rounded-card p-4">
+                <h4 class="text-foreground text-sm font-bold mb-3 flex items-center gap-2">
+                  <i data-lucide="tag" class="w-4 h-4"></i>
+                  Additional Info
+                </h4>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Difficulty:</span>
+                    <span class="text-foreground font-medium" id="reviewDifficulty">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Daily Limit:</span>
+                    <span class="text-foreground font-medium" id="reviewDailyLimit">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Tags:</span>
+                    <span class="text-foreground font-medium text-right max-w-32 truncate" id="reviewTags">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Photo Gallery Preview -->
+            <div>
+              <h4 class="text-foreground text-sm font-bold mb-3 flex items-center gap-2">
+                <i data-lucide="image" class="w-4 h-4"></i>
+                Photo Gallery
+              </h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4" id="reviewPhotos">
+                <!-- Photos will be populated by JavaScript -->
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
+              <button type="button" onclick="previousStep()"
+                class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border border-border rounded-button text-foreground font-semibold hover:border-primary transition-all duration-300 cursor-pointer">
+                Previous
+              </button>
+              <button type="button" onclick="createFoodItem()"
+                class="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-primary text-white rounded-button font-semibold hover:bg-primary-hover transition-all duration-300 cursor-pointer">
+                Create Food Item
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-md w-full text-center">
+    <div class="w-16 h-16 bg-success-light rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="check-circle" class="w-8 h-8 text-success-dark"></i>
+    </div>
+    <h3 class="text-foreground text-xl font-bold mb-2">Food Item Created!</h3>
+    <p class="text-gray-500 text-sm mb-6">Your new food item has been successfully added to the menu.</p>
+    <div class="flex gap-3">
+      <button onclick="createAnother()" class="flex-1 px-4 py-2.5 border border-border rounded-button text-foreground font-medium hover:border-primary transition-all duration-200 cursor-pointer">
+        Add Another
+      </button>
+      <button onclick="goToMenu()" class="flex-1 px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+        View Menu
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+
+document.addEventListener('DOMContentLoaded', function() {
+  lucide.createIcons();
+  updateStepIndicators(currentStep);
+  
+  // Character counter for description
+  const descTextarea = document.getElementById('inputDescription');
+  const charCount = document.getElementById('charCount');
+  if (descTextarea && charCount) {
+    descTextarea.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+    });
+  }
+});
+
+function toggleMobileMenu() {
+  const drawer = document.getElementById('mobileMenuDrawer');
+  drawer.classList.toggle('hidden');
+}
+
+function updateStepIndicators(step) {
+  // Update desktop step indicators
+  const stepCircles = document.querySelectorAll('.step-circle');
+  const stepLines = document.querySelectorAll('.step-line');
+  const stepTitles = document.querySelectorAll('.step-title');
+  const stepDescs = document.querySelectorAll('.step-desc');
+
+  stepCircles.forEach((circle, index) => {
+    const stepNum = index + 1;
+    if (stepNum < step) {
+      // Completed
+      circle.classList.remove('bg-gray-200');
+      circle.classList.add('bg-primary');
+      circle.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-white"></i>';
+    } else if (stepNum === step) {
+      // Active
+      circle.classList.remove('bg-gray-200');
+      circle.classList.add('bg-primary');
+      circle.innerHTML = '<span class="text-white text-xs font-bold">' + stepNum + '</span>';
+    } else {
+      // Pending
+      circle.classList.remove('bg-primary');
+      circle.classList.add('bg-gray-200');
+      circle.innerHTML = '<span class="text-gray-500 text-xs font-bold">' + stepNum + '</span>';
+    }
+  });
+
+  stepLines.forEach((line, index) => {
+    if (index + 1 < step) {
+      line.classList.remove('bg-gray-200');
+      line.classList.add('bg-primary');
+    } else {
+      line.classList.remove('bg-primary');
+      line.classList.add('bg-gray-200');
+    }
+  });
+
+  stepTitles.forEach((title, index) => {
+    if (index + 1 <= step) {
+      title.classList.remove('text-gray-400');
+      title.classList.add('text-primary');
+    } else {
+      title.classList.remove('text-primary');
+      title.classList.add('text-gray-400');
+    }
+  });
+
+  stepDescs.forEach((desc, index) => {
+    if (index + 1 <= step) {
+      desc.classList.remove('text-gray-400');
+      desc.classList.add('text-gray-600');
+    } else {
+      desc.classList.remove('text-gray-600');
+      desc.classList.add('text-gray-400');
+    }
+  });
+
+  // Update mobile step indicators
+  const mobileSteps = document.querySelectorAll('.mobile-step');
+  mobileSteps.forEach((mobileStep, index) => {
+    const stepNum = index + 1;
+    const circle = mobileStep.querySelector('div');
+    const text = mobileStep.querySelector('span');
+    
+    if (stepNum < step) {
+      // Completed
+      mobileStep.className = 'mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-primary/20 border border-primary';
+      circle.className = 'w-6 h-6 bg-primary rounded-full flex items-center justify-center';
+      circle.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-white"></i>';
+      text.className = 'text-primary text-xs font-semibold whitespace-nowrap';
+    } else if (stepNum === step) {
+      // Active
+      mobileStep.className = 'mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-primary/10 border border-primary';
+      circle.className = 'w-6 h-6 bg-primary rounded-full flex items-center justify-center';
+      circle.innerHTML = '<span class="text-white text-xs font-bold">' + stepNum + '</span>';
+      text.className = 'text-primary text-xs font-semibold whitespace-nowrap';
+    } else {
+      // Pending
+      mobileStep.className = 'mobile-step flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-button bg-gray-100 border border-transparent';
+      circle.className = 'w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center';
+      circle.innerHTML = '<span class="text-gray-500 text-xs font-bold">' + stepNum + '</span>';
+      text.className = 'text-gray-400 text-xs font-semibold whitespace-nowrap';
+    }
+  });
+
+  lucide.createIcons();
+}
+
+function showStep(step) {
+  // Hide all steps
+  for (let i = 1; i <= totalSteps; i++) {
+    document.getElementById('step' + i).classList.add('hidden');
+  }
+  // Show current step
+  document.getElementById('step' + step).classList.remove('hidden');
+}
+
+function nextStep() {
+  if (validateCurrentStep()) {
+    if (currentStep < totalSteps) {
+      currentStep++;
+      showStep(currentStep);
+      updateStepIndicators(currentStep);
+      
+      // Populate review data when reaching step 5
+      if (currentStep === 5) {
+        populateReviewData();
+      }
+    }
+  }
+}
+
+function previousStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    showStep(currentStep);
+    updateStepIndicators(currentStep);
+  }
+}
+
+function validateCurrentStep() {
+  const currentForm = document.getElementById('step' + currentStep + 'Form');
+  if (!currentForm) return true;
+  
+  const requiredInputs = currentForm.querySelectorAll('input[required], select[required], textarea[required]');
+  let isValid = true;
+  
+  requiredInputs.forEach(input => {
+    if (!input.value.trim()) {
+      input.classList.add('border-error');
+      isValid = false;
+    } else {
+      input.classList.remove('border-error');
+    }
+  });
+  
+  if (!isValid) {
+    alert('Please fill in all required fields before proceeding.');
+  }
+  
+  return isValid;
+}
+
+function cancelForm() {
+  if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
+    // Reset form or redirect
+    location.reload();
+  }
+}
+
+// Thumbnail photo functions
+function previewThumbnail(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('thumbnailPreview').src = e.target.result;
+      document.getElementById('thumbnailPlaceholder').classList.add('hidden');
+      document.getElementById('thumbnailPreviewContainer').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeThumbnail() {
+  document.getElementById('thumbnailUpload').value = '';
+  document.getElementById('thumbnailPreview').src = '';
+  document.getElementById('thumbnailPlaceholder').classList.remove('hidden');
+  document.getElementById('thumbnailPreviewContainer').classList.add('hidden');
+  lucide.createIcons();
+}
+
+// Gallery photo functions
+function previewPhoto(event, photoNum) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('photo' + photoNum + 'Preview').src = e.target.result;
+      document.getElementById('photo' + photoNum + 'Placeholder').classList.add('hidden');
+      document.getElementById('photo' + photoNum + 'PreviewContainer').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removePhoto(photoNum) {
+  document.getElementById('photo' + photoNum + 'Upload').value = '';
+  document.getElementById('photo' + photoNum + 'Preview').src = '';
+  document.getElementById('photo' + photoNum + 'Placeholder').classList.remove('hidden');
+  document.getElementById('photo' + photoNum + 'PreviewContainer').classList.add('hidden');
+  lucide.createIcons();
+}
+
+function populateReviewData() {
+  // Basic Information
+  document.getElementById('reviewFoodName').textContent = document.getElementById('inputFoodName').value || '-';
+  document.getElementById('reviewCategory').textContent = document.getElementById('selectCategory').selectedOptions[0]?.text || '-';
+  document.getElementById('reviewDescription').textContent = document.getElementById('inputDescription').value || '-';
+  
+  // Chef Assignment
+  document.getElementById('reviewChef').textContent = document.getElementById('selectChef').selectedOptions[0]?.text || '-';
+  document.getElementById('reviewPrepTime').textContent = document.getElementById('inputPrepTime').value ? document.getElementById('inputPrepTime').value + ' min' : '-';
+  document.getElementById('reviewCookTime').textContent = document.getElementById('inputCookTime').value ? document.getElementById('inputCookTime').value + ' min' : '-';
+  
+  // Pricing
+  document.getElementById('reviewPrice').textContent = document.getElementById('inputPrice').value ? '$' + document.getElementById('inputPrice').value : '-';
+  document.getElementById('reviewPortion').textContent = document.getElementById('selectPortion').selectedOptions[0]?.text || '-';
+  document.getElementById('reviewAvailable').textContent = document.getElementById('toggleAvailable').checked ? 'Yes' : 'No';
+  
+  // Additional Info
+  const difficulty = document.querySelector('input[name="difficulty"]:checked');
+  document.getElementById('reviewDifficulty').textContent = difficulty ? difficulty.value : '-';
+  document.getElementById('reviewDailyLimit').textContent = document.getElementById('inputDailyLimit').value || 'Unlimited';
+  document.getElementById('reviewTags').textContent = document.getElementById('inputTags').value || '-';
+  
+  // Photos
+  const reviewPhotos = document.getElementById('reviewPhotos');
+  reviewPhotos.innerHTML = '';
+  
+  // Add thumbnail if exists
+  const thumbnailSrc = document.getElementById('thumbnailPreview').src;
+  if (thumbnailSrc) {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <img src="${thumbnailSrc}" alt="Thumbnail" class="w-full aspect-square object-cover rounded-card">
+      <p class="text-xs text-center mt-1 text-gray-500">Thumbnail</p>
+    `;
+    reviewPhotos.appendChild(div);
+  }
+  
+  // Add gallery photos
+  for (let i = 1; i <= 4; i++) {
+    const photoSrc = document.getElementById('photo' + i + 'Preview').src;
+    if (photoSrc) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <img src="${photoSrc}" alt="Photo ${i}" class="w-full aspect-square object-cover rounded-card">
+        <p class="text-xs text-center mt-1 text-gray-500">Photo ${i}</p>
+      `;
+      reviewPhotos.appendChild(div);
+    }
+  }
+  
+  if (reviewPhotos.children.length === 0) {
+    reviewPhotos.innerHTML = '<p class="text-gray-500 text-sm col-span-full text-center py-8">No photos uploaded</p>';
+  }
+}
+
+function createFoodItem() {
+  // Simulate API call
+  setTimeout(() => {
+    document.getElementById('successModal').classList.remove('hidden');
+  }, 1000);
+}
+
+function createAnother() {
+  document.getElementById('successModal').classList.add('hidden');
+  location.reload();
+}
+
+function goToMenu() {
+  document.getElementById('successModal').classList.add('hidden');
+  alert('Redirecting to menu page...');
+}
+</script>
+
+</body>
+</html>

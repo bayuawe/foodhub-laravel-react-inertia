@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub - Sales Overview</title>
+<meta name="description" content="FoodHub sales overview dashboard for monitoring revenue, food performance, and restaurant analytics.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-border: var(--border);
+    --color-accent-lime: var(--accent-lime);
+    --color-accent-teal: var(--accent-teal);
+    --color-accent-peach: var(--accent-peach);
+    --color-success: var(--success);
+    --color-success-light: var(--success-light);
+    --color-success-dark: var(--success-dark);
+    --color-error: var(--error);
+    --color-error-light: var(--error-light);
+    --color-error-lighter: var(--error-lighter);
+    --color-error-dark: var(--error-dark);
+    --color-warning: var(--warning);
+    --color-warning-light: var(--warning-light);
+    --color-warning-dark: var(--warning-dark);
+    --color-info: var(--info);
+    --color-info-light: var(--info-light);
+    --color-info-dark: var(--info-dark);
+    --color-alert: var(--alert);
+    --color-alert-light: var(--alert-light);
+    --color-alert-dark: var(--alert-dark);
+    --color-gray-50: var(--gray-50);
+    --color-gray-100: var(--gray-100);
+    --color-gray-200: var(--gray-200);
+    --color-gray-500: var(--gray-500);
+    --color-gray-600: var(--gray-600);
+    --color-gray-700: var(--gray-700);
+    --font-sans: var(--font-sans);
+    --radius-card: 20px;
+    --radius-button: 16px;
+    --radius-icon: 22px;
+  }
+  :root {
+    --primary: #EF3F09;
+    --primary-hover: #d63608;
+    --foreground: #0C1C3C;
+    --muted: #F7F7F7;
+    --border: #DCDEDD;
+    --accent-lime: #C5E151;
+    --accent-teal: #82D9D7;
+    --accent-peach: #FAAC7B;
+    --success: #22C55E;
+    --success-light: #DCFCE7;
+    --success-dark: #166534;
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --error-lighter: #FEF2F2;
+    --error-dark: #991B1B;
+    --warning: #EAB308;
+    --warning-light: #FEF9C3;
+    --warning-dark: #854D0E;
+    --info: #3B82F6;
+    --info-light: #DBEAFE;
+    --info-dark: #1E40AF;
+    --alert: #F97316;
+    --alert-light: #FFEDD5;
+    --alert-dark: #9A3412;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+  }
+  select {
+    @apply appearance-none bg-no-repeat cursor-pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 10px center;
+    padding-right: 40px;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="font-sans bg-white min-h-screen overflow-x-hidden">
+
+<!-- Mobile Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
+
+<div class="flex min-h-screen">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="w-64 bg-muted fixed inset-y-0 left-0 flex flex-col z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <!-- Logo Section -->
+    <div class="px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center">
+            <i data-lucide="utensils" class="w-7 h-7 text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-foreground text-lg font-bold">FoodHub</h1>
+            <p class="text-foreground text-xs font-normal">Manager Dashboard</p>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" aria-label="Close sidebar" class="lg:hidden p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-all duration-200">
+          <i data-lucide="x" class="w-5 h-5 text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-6 py-4 space-y-6 overflow-y-auto">
+      <div>
+        <h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Main</h3>
+        <div class="space-y-1">
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100">
+              <i data-lucide="home" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+              <span class="text-foreground group-hover:text-primary">Dashboard</span>
+            </div>
+          </a>
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card bg-[#276874] text-white">
+              <i data-lucide="trending-up" class="w-5 h-5"></i>
+              <span>Sales Overview</span>
+            </div>
+          </a>
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100">
+              <i data-lucide="shopping-bag" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+              <span class="text-foreground group-hover:text-primary">Orders</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Management</h3>
+        <div class="space-y-1">
+          <div>
+            <button data-accordion="food-menu" class="flex items-center justify-between w-full px-4 py-3 rounded-card hover:bg-gray-50 cursor-pointer transition-all duration-200 group">
+              <div class="flex items-center gap-2.5">
+                <i data-lucide="utensils" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+                <span class="text-foreground group-hover:text-primary">Food Menu</span>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 group-hover:text-primary transition-transform duration-200"></i>
+            </button>
+            <div id="food-menu" class="ml-4 mt-2 space-y-1 hidden">
+              <a href="#" class="group cursor-pointer">
+                <div class="px-4 py-2 rounded-card hover:bg-gray-50">
+                  <span class="text-foreground text-sm group-hover:text-primary">All Items</span>
+                </div>
+              </a>
+              <a href="#" class="group cursor-pointer">
+                <div class="px-4 py-2 rounded-card hover:bg-gray-50">
+                  <span class="text-foreground text-sm group-hover:text-primary">Add New Item</span>
+                </div>
+              </a>
+              <a href="#" class="group cursor-pointer">
+                <div class="px-4 py-2 rounded-card hover:bg-gray-50">
+                  <span class="text-foreground text-sm group-hover:text-primary">Categories</span>
+                </div>
+              </a>
+            </div>
+          </div>
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100">
+              <i data-lucide="store" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+              <span class="text-foreground group-hover:text-primary">Restaurants</span>
+            </div>
+          </a>
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100">
+              <i data-lucide="chef-hat" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+              <span class="text-foreground group-hover:text-primary">Chefs</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-foreground text-xs font-semibold uppercase tracking-wider mb-3">Settings</h3>
+        <div class="space-y-1">
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100">
+              <i data-lucide="settings" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+              <span class="text-foreground group-hover:text-primary">Settings</span>
+            </div>
+          </a>
+          <a href="#" class="group cursor-pointer">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-card hover:bg-gray-100">
+              <i data-lucide="users" class="w-5 h-5 text-gray-600 group-hover:text-primary"></i>
+              <span class="text-foreground group-hover:text-primary">Users</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- User Profile at Bottom -->
+    <div class="px-6 pb-6 mt-auto">
+      <div class="flex items-center gap-3">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Admin User profile photo" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+        <div class="min-w-0 flex-1">
+          <p class="text-foreground text-base font-semibold truncate">Admin User</p>
+          <p class="text-foreground text-sm font-normal truncate">admin@company.com</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 lg:ml-64 p-4 md:p-5 bg-white min-h-screen overflow-x-hidden">
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between mb-6 bg-muted rounded-card p-4">
+      <button onclick="toggleSidebar()" aria-label="Open menu" class="p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-all duration-200">
+        <i data-lucide="menu" class="w-6 h-6 text-foreground"></i>
+      </button>
+      <h1 class="text-foreground text-lg font-bold">FoodHub</h1>
+      <div class="w-10"></div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
+      <div>
+        <h1 class="text-foreground text-2xl md:text-3xl font-bold mb-1">Sales Overview</h1>
+        <p class="text-gray-500 text-sm md:text-base">Track revenue, performance, and sales analytics across all restaurants</p>
+      </div>
+      <div class="flex items-center gap-2 md:gap-3 ml-auto md:ml-0">
+        <button class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-button text-foreground font-medium hover:border-primary transition-all duration-200 cursor-pointer">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Export Report</span>
+        </button>
+        <button class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>View Analytics</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Total Revenue</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-foreground text-4xl font-extrabold mb-1">$45K</p>
+              <p class="text-green-600 text-sm font-medium">+18% this month</p>
+            </div>
+            <div class="w-16 h-16 bg-accent-lime rounded-icon flex items-center justify-center">
+              <i data-lucide="dollar-sign" class="w-7 h-7 text-foreground"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Total Orders</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-foreground text-4xl font-extrabold mb-1">1,248</p>
+              <p class="text-green-600 text-sm font-medium">+12% this month</p>
+            </div>
+            <div class="w-16 h-16 bg-accent-teal rounded-icon flex items-center justify-center">
+              <i data-lucide="shopping-bag" class="w-7 h-7 text-foreground"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Active Restaurants</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-foreground text-4xl font-extrabold mb-1">24</p>
+              <p class="text-blue-600 text-sm font-medium">3 new this month</p>
+            </div>
+            <div class="w-16 h-16 bg-accent-peach rounded-icon flex items-center justify-center">
+              <i data-lucide="store" class="w-7 h-7 text-foreground"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Average Order</h3>
+        <div class="bg-white rounded-card p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-foreground text-4xl font-extrabold mb-1">$36</p>
+              <p class="text-green-600 text-sm font-medium">+8% this month</p>
+            </div>
+            <div class="w-16 h-16 bg-accent-lime rounded-icon flex items-center justify-center">
+              <i data-lucide="trending-up" class="w-7 h-7 text-foreground"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+      <!-- Monthly Sales Trend -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Monthly Sales Trend</h3>
+        <div class="bg-white rounded-card p-4 md:p-5">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-70 h-55 sm:h-62 md:h-70">
+              <canvas id="salesTrendChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Selling Foods -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Top Selling Foods</h3>
+        <div class="bg-white rounded-card p-4 md:p-5">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-70 h-55 sm:h-62 md:h-70">
+              <canvas id="topFoodsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Restaurant Performance Chart -->
+    <div class="bg-muted rounded-card pt-5 px-3 pb-3 mb-6 md:mb-8">
+      <h3 class="text-foreground text-lg font-bold ml-3 mb-4">Restaurant Performance Comparison</h3>
+      <div class="bg-white rounded-card p-4 md:p-5">
+        <div class="w-full overflow-x-auto">
+          <div class="min-w-70 h-55 sm:h-62 md:h-70">
+            <canvas id="restaurantPerformanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Food List and Restaurant List -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <!-- Top Foods List -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 px-3">
+          <h3 class="text-foreground text-lg font-bold">Top Performing Foods</h3>
+          <a href="#" class="cursor-pointer"><span class="text-sm text-primary hover:underline">View All</span></a>
+        </div>
+        <div class="bg-white rounded-card p-5">
+          <div class="space-y-4">
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=100&h=100&fit=crop" alt="Margherita Pizza image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Margherita Pizza</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Classic Italian pizza with fresh tomatoes and mozzarella</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$18 • 342 orders</span>
+                  <span class="bg-success-light text-success-dark text-xs font-medium px-2 py-1 rounded-full">Best Seller</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=100&h=100&fit=crop" alt="Chicken Burger image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Chicken Burger</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Grilled chicken breast with lettuce and special sauce</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$15 • 298 orders</span>
+                  <span class="bg-info-light text-info-dark text-xs font-medium px-2 py-1 rounded-full">Popular</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=100&h=100&fit=crop" alt="Caesar Salad image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Caesar Salad</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Fresh romaine lettuce with parmesan and croutons</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$12 • 185 orders</span>
+                  <span class="bg-warning-light text-warning-dark text-xs font-medium px-2 py-1 rounded-full">Trending</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=100&h=100&fit=crop" alt="Beef Steak image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Beef Steak</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Premium grilled beef with herbs and vegetables</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$28 • 156 orders</span>
+                  <span class="bg-alert-light text-alert-dark text-xs font-medium px-2 py-1 rounded-full">Premium</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <img src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=100&h=100&fit=crop" alt="Spaghetti Carbonara image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Spaghetti Carbonara</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Traditional Italian pasta with cream and bacon</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$16 • 142 orders</span>
+                  <span class="bg-info-light text-info-dark text-xs font-medium px-2 py-1 rounded-full">Classic</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Restaurants List -->
+      <div class="bg-muted rounded-card pt-5 px-3 pb-3">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 px-3">
+          <h3 class="text-foreground text-lg font-bold">Top Performing Restaurants</h3>
+          <a href="#" class="cursor-pointer"><span class="text-sm text-primary hover:underline">View All</span></a>
+        </div>
+        <div class="bg-white rounded-card p-5">
+          <div class="space-y-4">
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop" alt="Bella Vista Restaurant image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Bella Vista Restaurant</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Italian • Downtown • 4.8★ rating</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$12.5K revenue • 485 orders</span>
+                  <span class="bg-success-light text-success-dark text-xs font-medium px-2 py-1 rounded-full">Top Rated</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=100&h=100&fit=crop" alt="Ocean Breeze Cafe image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Ocean Breeze Cafe</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Seafood • Waterfront • 4.6★ rating</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$8.9K revenue • 356 orders</span>
+                  <span class="bg-info-light text-info-dark text-xs font-medium px-2 py-1 rounded-full">Popular</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=100&h=100&fit=crop" alt="The Grill House image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">The Grill House</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Steakhouse • Uptown • 4.7★ rating</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$7.2K revenue • 245 orders</span>
+                  <span class="bg-warning-light text-warning-dark text-xs font-medium px-2 py-1 rounded-full">Premium</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-100 pb-4">
+              <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=100&h=100&fit=crop" alt="Green Garden Bistro image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Green Garden Bistro</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Vegetarian • Midtown • 4.5★ rating</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$6.8K revenue • 298 orders</span>
+                  <span class="bg-success-light text-success-dark text-xs font-medium px-2 py-1 rounded-full">Eco-Friendly</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <img src="https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=100&h=100&fit=crop" alt="Spice Route Kitchen image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-foreground text-sm font-bold mb-1 truncate">Spice Route Kitchen</h4>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-2">Indian • East Side • 4.4★ rating</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400 text-xs">$5.9K revenue • 267 orders</span>
+                  <span class="bg-alert-light text-alert-dark text-xs font-medium px-2 py-1 rounded-full">Authentic</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Page Not Found Modal -->
+<div id="page-not-found-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+    <div class="w-16 h-16 bg-warning-light rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="alert-triangle" class="w-8 h-8 text-warning-dark"></i>
+    </div>
+    <h3 class="text-foreground text-xl font-bold mb-2">Page Not Available</h3>
+    <p class="text-gray-500 text-sm mb-6">This page hasn't been created yet. Generate it using the chat!</p>
+    <button onclick="closePageNotFoundModal()" class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer">
+      Got it
+    </button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  lucide.createIcons();
+
+  // Show modal when clicking any link
+  document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('page-not-found-modal').classList.remove('hidden');
+    });
+  });
+
+  // Accordion toggle
+  document.querySelectorAll('[data-accordion]').forEach(button => {
+    button.addEventListener('click', function() {
+      const target = document.getElementById(this.dataset.accordion);
+      const chevron = this.querySelector('[data-lucide="chevron-down"]');
+      target.classList.toggle('hidden');
+      chevron.classList.toggle('rotate-180');
+    });
+  });
+
+  // Initialize Charts
+  initializeCharts();
+});
+
+function closePageNotFoundModal() {
+  document.getElementById('page-not-found-modal').classList.add('hidden');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('-translate-x-full');
+  overlay.classList.toggle('hidden');
+  document.body.classList.toggle('overflow-hidden');
+}
+
+function initializeCharts() {
+  // Monthly Sales Trend Chart
+  new Chart(document.getElementById('salesTrendChart'), {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+      datasets: [
+        {
+          label: 'This Year',
+          data: [28, 65, 42, 78],
+          borderColor: '#EF3F09',
+          backgroundColor: 'rgba(239, 63, 9, 0.1)',
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Last Year',
+          data: [35, 48, 58, 52],
+          borderColor: '#82D9D7',
+          backgroundColor: 'rgba(130, 217, 215, 0.1)',
+          fill: true,
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value + 'K';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Top Selling Foods Chart
+  new Chart(document.getElementById('topFoodsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Pizza', 'Burgers', 'Salads', 'Steaks'],
+      datasets: [{
+        data: [35, 25, 20, 20],
+        backgroundColor: ['#22C55E', '#C5E151', '#82D9D7', '#EAB308']
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+
+  // Restaurant Performance Chart
+  new Chart(document.getElementById('restaurantPerformanceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Bella Vista', 'Ocean Breeze', 'Grill House', 'Green Garden'],
+      datasets: [{
+        label: 'Revenue ($K)',
+        data: [42, 35, 28, 22],
+        backgroundColor: ['#C5E151', '#82D9D7', '#FAAC7B', '#C5E151']
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value + 'K';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
